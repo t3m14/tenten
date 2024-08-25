@@ -17,3 +17,10 @@ def main_menu() -> types.ReplyKeyboardMarkup:
         input_field_placeholder="Выберите действие",
     )
     return keyboard
+
+def pay_subscribe() -> types.InlineKeyboardMarkup:
+    kb = [
+        #TODO Реализовать оплату звездочками
+        [types.InlineKeyboardButton(text='Оплатить подписку на месяц', callback_data="pay")]    
+    ]
+    return types.InlineKeyboardMarkup(inline_keyboard=kb)
