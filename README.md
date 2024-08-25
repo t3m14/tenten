@@ -3,9 +3,8 @@
 A simple structure for creating telegram bots using AIOgram 3.
 
 ---
-***Readme template:***
 
-# [project name]
+# [TenTen]
 
 ![aiogram](https://img.shields.io/badge/python-v3.10-blue.svg?logo=python&logoColor=yellow) ![aiogram](https://img.shields.io/badge/aiogram-v3-blue.svg?logo=telegram) ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
