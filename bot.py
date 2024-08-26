@@ -3,6 +3,7 @@ import logging
 
 from aiogram import Bot, Dispatcher
 from aiogram.client.bot import DefaultBotProperties
+from aiogram.fsm.storage.memory import MemoryStorage
 from config import Config, load_config
 from src.handlers import router as main_router
 
@@ -21,8 +22,9 @@ async def main():
 
     config: Config = load_config()
 
+    storage = MemoryStorage()
     bot: Bot = Bot(token=config.tg_bot.token, default=DefaultBotProperties(parse_mode='HTML'))
-    dp: Dispatcher = Dispatcher()
+    dp: Dispatcher = Dispatcher(storage=storage)
 
     dp.include_router(main_router)
 
