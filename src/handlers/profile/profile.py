@@ -6,7 +6,6 @@ router: Router = Router(name=__name__)
 async def profile(message: types.Message):
     likes = 0
     sub = 0
-    # TODO Сделать базу данных для пользователей
     # TODO Сделать получение информации
     # TODO Вынести текст в lexicon
     await message.answer(text=f"""
