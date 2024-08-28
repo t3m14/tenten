@@ -11,9 +11,9 @@ router = Router(name=__name__)
 
 router.include_routers(
     main_menu_router,
-    chat_router,
-    contacts_router,
     profile_router,
+    contacts_router,
+    chat_router,
 )
 
 # this one has to be the last!

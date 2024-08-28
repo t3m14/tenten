@@ -6,7 +6,7 @@ from aiogram.client.bot import DefaultBotProperties
 from aiogram.fsm.storage.memory import MemoryStorage
 from config import Config, load_config
 from src.handlers import router as main_router
-
+from src.models.user_models import create_tables
 
 logger = logging.getLogger(__name__)
 
@@ -17,6 +17,9 @@ async def main():
         format="%(filename)s:%(lineno)d #%(levelname)-8s "
         "[%(asctime)s] - %(name)s - %(message)s",
     )
+    logger.info("Creating tables")
+    create_tables()
+    logger.info("Tables created")
 
     logger.info("Starting bot")
 

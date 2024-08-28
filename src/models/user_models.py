@@ -1,4 +1,3 @@
-
 from peewee import *
 from datetime import datetime
 
@@ -23,7 +22,7 @@ class Like(BaseModel):
 
 def create_tables():
     with db:
-        db.create_tables([User, Like])
+        db.create_tables([User, Like], safe=True)
 
 def reset_daily_likes():
     today = datetime.now().date()
@@ -54,3 +53,26 @@ def get_new_likes_count(user_id):
 
 def mark_likes_as_seen(user_id):
     Like.update(is_new=False).where((Like.receiver == user_id) & (Like.is_new == True)).execute()
+
+def get_user_info(user_id):
+    try:
+        user = User.get(User.user_id == user_id)
+        return {
+            'user_id': user.user_id,
+            'username': user.username,
+            'subscription_status': user.subscription_status,
+            'likes_count': user.likes_count,
+            'last_like_reset': user.last_like_reset
+        }
+    except User.DoesNotExist:
+        return None
+
+def create_user(user_id, username=None):
+    return User.get_or_create(user_id=user_id, defaults={'username': username})[0]
+def update_user(user_id, **kwargs):
+    query = User.update(**kwargs).where(User.user_id == user_id)
+    return query.execute()
+
+def delete_user(user_id):
+    query = User.delete().where(User.user_id == user_id)
+    return query.execute()
