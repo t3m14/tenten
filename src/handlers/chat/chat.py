@@ -1,3 +1,4 @@
+import datetime
 from aiogram import Router
 import random
 
@@ -9,8 +10,8 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 import asyncio
 from src.states.states import ChatStates
-MAX_USERS = 3
-CHAT_DURATION = 600  # 10 minutes in seconds
+MAX_USERS = 2
+CHAT_DURATION = 10  # 10 minutes in seconds
 
 #TODO Вынести в базу данных
 chat_rooms = {}
@@ -89,8 +90,7 @@ async def start_chat(room_id, callback, state):
     
     for user_id in room['users']:
         # TODO Сделать лайки
-        await callback.bot.send_message(user_id, "Время чата истекло. Вы возвращены в главное меню.")
-        await cmd_start(types.Message(chat=types.Chat(id=user_id, type="private")))
+        await callback.bot.send_message(user_id, "Время чата истекло. Пора ставить лайки!")
     
     del chat_rooms[room_id]
 
@@ -103,7 +103,10 @@ async def handle_chat_message(message: types.Message, state: FSMContext):
         data = await state.get_data()
 
         room_id = data['room_id']
+        if not chat_rooms:
+            return
         room = chat_rooms[room_id]
+        
         sender_emoji = room['emojis'][message.from_user.id]
 
         for user_id in room['users']:
