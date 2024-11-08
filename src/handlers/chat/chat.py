@@ -10,8 +10,10 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 import asyncio
 from src.states.states import ChatStates
+from src.keyboards.keyboards import select_liked_users
+from src.models.user_models import send_like
 MAX_USERS = 2
-CHAT_DURATION = 10  # 10 minutes in seconds
+CHAT_DURATION = 15  # 10 minutes in seconds
 
 #TODO Вынести в базу данных
 chat_rooms = {}
@@ -87,11 +89,13 @@ async def start_chat(room_id, callback, state):
         await callback.bot.send_message(user_id, "Чат начался! У вас есть 10 минут для общения. Чтобы выйти из чата, нажмите /start")
 
     await asyncio.sleep(CHAT_DURATION)
-    
     for user_id in room['users']:
+        user_state = FSMContext(state.storage, user_id)
+        await user_state.clear()
         # TODO Сделать лайки
-        await callback.bot.send_message(user_id, "Время чата истекло. Пора ставить лайки!")
-    
+    for user_id in room['users']:
+        emojis = {uid: room['emojis'][uid] for uid in room['users'] if uid != user_id}
+        await callback.bot.send_message(user_id, "Время чата истекло. Пора ставить лайки!", reply_markup=select_liked_users(emojis))    
     del chat_rooms[room_id]
 
 @router.message()
@@ -115,3 +119,25 @@ async def handle_chat_message(message: types.Message, state: FSMContext):
                 await message.bot.send_message(user_id, f"{sender_emoji}: \n {message.text}")
 
         room['messages'].append((message.from_user.id, message.text))
+
+@router.callback_query(lambda c: c.data.startswith('like:'))
+async def handle_like(callback: types.CallbackQuery, state: FSMContext):
+    liked_user_id = int(callback.data.split(':')[1])
+    from_user_id = callback.from_user.id
+    
+    # Проверяем, не ставит ли пользователь лайк сам себе
+    if liked_user_id == from_user_id:
+        await callback.answer("Вы не можете поставить лайк самому себе!")
+        return
+    send_like_success  = send_like(from_user_id, liked_user_id)
+    if send_like_success:
+        await callback.answer("Лайк успешно поставлен!")
+        # Отправляем уведомление пользователю, получившему лайк
+        await callback.bot.send_message(
+            liked_user_id,
+            "Вам поставили лайк! Переходите в профиль и проверяйте, кто вас лайкнул!"
+        )
+    else:
+        await callback.answer("Вы уже поставили лайк этому пользователю или лайки на сегодня закончились!")
+    
+    

@@ -36,12 +36,22 @@ def send_like(sender_id, receiver_id):
 
     if sender.likes_count >= 10 and sender.last_like_reset.date() == datetime.now().date():
         return False
-
+    if sender == receiver:
+        return False
+        
+    existing_like = Like.select().where(
+        (Like.sender == sender) & 
+        (Like.receiver == receiver)
+    ).exists()
+    
+    if existing_like:
+        return False
+        
     Like.create(sender=sender, receiver=receiver)
     sender.likes_count += 1
     sender.save()
     return True
-
+    
 def get_received_likes(user_id):
     return (Like
             .select()
